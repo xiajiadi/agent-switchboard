@@ -122,7 +122,10 @@ class EngineTests(unittest.TestCase):
         self.assertEqual(parent["agents"]["reviewer"]["config_file"], "agents/roles/reviewer.toml")
         self.assertEqual(role["model"], "gpt-6-sol")
         self.assertEqual(role["model_reasoning_effort"], "high")
-        self.assertEqual(result["filesWritten"], [str(self.project / ".codex" / "config.toml"), str(role_path)])
+        self.assertEqual(
+            [Path(path).resolve() for path in result["filesWritten"]],
+            [(self.project / ".codex" / "config.toml").resolve(), role_path.resolve()],
+        )
 
     def test_delete_project_role_removes_its_default_role_file(self) -> None:
         config_path = self.project / ".codex" / "config.toml"
@@ -140,7 +143,7 @@ class EngineTests(unittest.TestCase):
         parent = tomlkit.parse(config_path.read_text(encoding="utf-8"))
 
         self.assertEqual(result["ok"], True)
-        self.assertEqual(result["filesDeleted"], [str(role_path)])
+        self.assertEqual([Path(path).resolve() for path in result["filesDeleted"]], [role_path.resolve()])
         self.assertEqual(result["settingsBeforeRemoval"], {"model": "gpt-6-sol"})
         self.assertFalse(role_path.exists())
         self.assertNotIn("reviewer", parent["agents"])
@@ -159,7 +162,7 @@ class EngineTests(unittest.TestCase):
         result = engine.delete_agent_role("global", "audit")
 
         self.assertEqual(result["ok"], True)
-        self.assertEqual(result["filesDeleted"], [str(role_path)])
+        self.assertEqual([Path(path).resolve() for path in result["filesDeleted"]], [role_path.resolve()])
         self.assertEqual(result["settingsBeforeRemoval"], {"model_reasoning_effort": "high"})
         self.assertFalse(role_path.exists())
         self.assertFalse(tomlkit.parse(config_path.read_text(encoding="utf-8")).get("agents"))
@@ -183,9 +186,9 @@ class EngineTests(unittest.TestCase):
         custom_result = engine.delete_agent_role("project", "reviewer", str(self.project))
         shared_result = engine.delete_agent_role("project", "worker", str(self.project))
 
-        self.assertEqual(custom_result["preservedConfigFile"], str(custom_path))
+        self.assertEqual(Path(custom_result["preservedConfigFile"]).resolve(), custom_path.resolve())
         self.assertTrue(custom_path.exists())
-        self.assertEqual(shared_result["preservedConfigFile"], str(shared_path))
+        self.assertEqual(Path(shared_result["preservedConfigFile"]).resolve(), shared_path.resolve())
         self.assertTrue(shared_path.exists())
         self.assertTrue(any("shared" in warning for warning in shared_result["warnings"]))
 
@@ -203,7 +206,7 @@ class EngineTests(unittest.TestCase):
         result = engine.delete_agent_role("project", "reviewer", str(self.project))
 
         self.assertEqual(result["ok"], True)
-        self.assertEqual(result["preservedConfigFile"], str(custom_path))
+        self.assertEqual(Path(result["preservedConfigFile"]).resolve(), custom_path.resolve())
         self.assertTrue(custom_path.exists())
         self.assertEqual(tomlkit.parse(config_path.read_text(encoding="utf-8")).get("agents"), None)
 
@@ -223,8 +226,10 @@ class EngineTests(unittest.TestCase):
         parent.write_text("", encoding="utf-8")
         symlink_component = parent.parent / "agents"
 
+        expected_component = symlink_component.resolve()
+
         def reports_symlink(path: Path) -> bool:
-            return path == symlink_component
+            return path.resolve(strict=False) == expected_component
 
         with patch.object(Path, "is_symlink", reports_symlink):
             with self.assertRaises(engine.ConfigError):
