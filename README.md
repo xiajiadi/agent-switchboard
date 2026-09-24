@@ -1,101 +1,112 @@
 # Agent Switchboard
 
+[English](README.md) · [简体中文](README.zh-CN.md)
+
 [![Quality checks](https://github.com/xiajiadi/agent-switchboard/actions/workflows/ci.yml/badge.svg)](https://github.com/xiajiadi/agent-switchboard/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-<p align="center">
-  <img src="plugins/agent-switchboard/assets/icon.svg" alt="Agent Switchboard icon" width="120">
-</p>
+## Visual control for Codex agents
 
-Agent Switchboard is a local Codex plugin for reviewing and managing Agent settings through a visual panel or natural-language tools.
+Configure models, reasoning, speed, context, compaction, and agent roles without hand-editing TOML. Use the panel or ask Codex in natural language, then review changes before they reach Codex’s own configuration files.
 
-It writes to Codex's official TOML configuration files. It does not keep a second settings database.
+[Install](#install) · [Watch the demo](assets/agent-switchboard-demo.mp4) · [Technical guide](plugins/agent-switchboard/README.md) · [简体中文](README.zh-CN.md)
+
+[v0.1.0 release notes](docs/releases/v0.1.0.md)
+
+[![Agent Switchboard interface](assets/agent-switchboard-hero.png)](assets/agent-switchboard-demo.mp4)
+
+*Click the preview to open the recorded demo.*
+
+Local-first · Official Codex TOML · Preview before write
+
+## Install
+
+Add the GitHub-backed marketplace and install Agent Switchboard in Codex:
+
+```bash
+codex plugin marketplace add xiajiadi/agent-switchboard
+codex plugin add agent-switchboard@agent-switchboard-community
+```
+
+Start a new Codex task after installation, then open **Agent Switchboard**. The local MCP server requires [uv](https://docs.astral.sh/uv/) and Python 3.11 or newer. The UI bundle is included; Node.js is only needed to rebuild it.
+
+## Why Agent Switchboard?
+
+| Editing TOML by hand | Using Agent Switchboard |
+| --- | --- |
+| Find the right global or project file and its precedence | Choose a scope and agent in the panel |
+| Look up the right keys and model options | Pick from the model catalog available to your local Codex CLI |
+| Check the edit, save, and recover manually | Preview, validate, review the diff, and confirm the write |
+
+The plugin writes to Codex’s configuration files, so the same settings remain available to Codex without a separate settings store.
 
 ## Features
 
-- Configure global defaults in CODEX_HOME/config.toml or project overrides in .codex/config.toml.
-- Manage the default subagent and named agent roles.
-- Select models, reasoning effort, speed, context window, and automatic compaction threshold.
-- Preview and validate changes before confirming writes.
-- Review operation history, including the affected configuration path and managed values.
-- Keep role definitions in role-specific TOML files.
+- **Visual configuration:** Set the scope, agent type, model, reasoning effort, speed tier, context window, and compaction threshold where supported.
+- **Global and project scopes:** Manage user defaults or project overrides. Codex reads project configuration only for trusted projects.
+- **Default subagent and named roles:** Configure default subagent settings and keep named role definitions in their own TOML files.
+- **Natural-language workflow:** Ask Codex to inspect or update an agent. For example: “Set this project’s default subagent to GPT-6 Luna with high reasoning and Fast.”
+- **Review before writing:** Validate supported values, inspect the proposed diff, and confirm before the plugin writes.
+- **Local operation history:** Review recent operations and the settings they changed.
+- **Native configuration:** Read and write Codex’s TOML files directly. Existing comments and unrelated settings are preserved.
 
-The plugin reads the model catalog available to the local Codex CLI. Codex only loads project-level configuration for trusted projects.
+<p align="center">
+  <img src="assets/agent-switchboard-features.png" alt="Agent Switchboard features: visual configuration, preview before write, named roles, and operation history" width="100%">
+</p>
 
-## Install from this GitHub marketplace
+## Two ways to work
 
-In Codex, add this marketplace and install the plugin:
+### Use the panel
 
-    codex plugin marketplace add xiajiadi/agent-switchboard
-    codex plugin add agent-switchboard@agent-switchboard-community
+Open Agent Switchboard, choose the scope and agent, adjust available settings, and select **Preview and apply**. Review the affected files and values before confirming.
 
-Then start a new Codex task and open **Agent Switchboard**. The plugin launches a local MCP server and needs uv plus Python 3.11 or newer. The prebuilt UI bundle is included; Node.js is only needed when rebuilding the UI from source.
+### Ask Codex
 
-To check the installed version:
+You can describe the intended change in a prompt:
 
-    codex plugin list
+```text
+For this project, set the default subagent to GPT-6 Sol with high reasoning.
+Show me the proposed changes before applying them.
+```
 
-## Build and verify from source
+The plugin’s tools read the current configuration, validate requested values, and show a diff before writing.
 
-From plugins/agent-switchboard:
+## Scopes and configuration
 
-    uv sync --locked
-    uv run python -m unittest discover -s tests -v
-    npm ci
-    npm run build:ui
+| Scope | File | Use |
+| --- | --- | --- |
+| Global | `$CODEX_HOME/config.toml` | User-level defaults across projects |
+| Project | `<project>/.codex/config.toml` | Overrides for one trusted project |
+| Named role | A role-specific TOML file referenced by `agents.<name>.config_file` | Settings for a named agent role |
 
-The Node build regenerates agent_switchboard/ui_bundle.js from ui/src/app.js.
+Codex controls which configuration layer takes effect. Command-line options and higher-precedence settings may override values from these files. Model, reasoning, and speed controls for the main agent remain in Codex’s model picker; the panel can manage supported context and compaction settings for the main agent.
 
-## Data and privacy
+## Safe writes, local data
 
-The plugin runs locally. It reads and writes the Codex TOML files selected in the panel and stores its operation history under CODEX_HOME/logs/agent-switchboard.jsonl. Log details can include local paths and values for settings managed by the plugin. The plugin has no built-in telemetry or hosted service.
+The plugin validates the selected changes, shows a diff, and waits for confirmation. It preserves TOML comments and unrelated fields, then writes through an atomic file replacement. Operation history is stored locally at `$CODEX_HOME/logs/agent-switchboard.jsonl`.
 
-Review PRIVACY.md before sharing logs. Never attach a complete Codex configuration file or unredacted logs to a public issue.
+The plugin has no built-in telemetry or hosted service. Its logs can contain local paths and values for settings managed by the plugin. Review [PRIVACY.md](PRIVACY.md) before sharing logs, and redact local details from public reports.
 
-## Repository layout
+## Development
 
-    .agents/plugins/marketplace.json     GitHub marketplace definition
-    plugins/agent-switchboard/            Installable Codex plugin
-    .github/workflows/ci.yml              Build and test checks
+The installable plugin lives in [`plugins/agent-switchboard`](plugins/agent-switchboard). From that directory:
 
-## Help and contributions
+```bash
+uv sync --locked
+uv run python -m unittest discover -s tests -v
+npm ci
+npm run build:ui
+```
 
-- Read the plugin's full guide: plugins/agent-switchboard/README.md.
-- Report bugs and suggest changes through GitHub Issues.
-- See CONTRIBUTING.md before opening a pull request.
-- For security reports, follow SECURITY.md.
+The last two commands rebuild the bundled UI and require Node.js 20 or newer. See [CONTRIBUTING.md](CONTRIBUTING.md) for the development workflow and [the technical guide](plugins/agent-switchboard/README.md) for tools, configuration details, and local development installation.
 
-## 中文说明
+## Contributing and support
 
-Agent Switchboard 是一个本地 Codex 插件，通过可视面板和自然语言工具管理 Agent 配置。它直接编辑 Codex 官方 TOML 文件，不另存一份私有配置。
-
-### 主要功能
-
-- 管理全局默认配置和项目级覆盖
-- 设置默认子 Agent 与命名角色
-- 选择模型、推理强度、速度、上下文窗口和自动压缩阈值
-- 写入前预览并校验修改
-- 查看操作日志、配置路径和本插件管理的配置值
-
-项目级配置只有在 Codex 信任该项目时才会读取。
-
-### 安装
-
-在 Codex 中添加 GitHub 市场并安装：
-
-    codex plugin marketplace add xiajiadi/agent-switchboard
-    codex plugin add agent-switchboard@agent-switchboard-community
-
-安装后新建一个 Codex 任务，再打开 **Agent Switchboard**。插件在本机启动 MCP 服务，需要安装 uv 和 Python 3.11 或更新版本。仓库已包含构建好的 UI；只有从源码重新构建界面时才需要 Node.js。
-
-### 数据处理
-
-插件在本机运行。它读取和写入面板中选择的 Codex TOML 配置，并将操作历史保存在 CODEX_HOME/logs/agent-switchboard.jsonl。日志详情可能包含本机文件路径和插件管理的配置值。插件没有内置遥测或托管服务。公开反馈前请先阅读 PRIVACY.md，不要上传完整配置或未脱敏日志。
-
-### 开发
-
-进入 plugins/agent-switchboard 后，按上面的构建和验证命令操作。更多用法见插件说明。
+- Report bugs or request features through [GitHub Issues](https://github.com/xiajiadi/agent-switchboard/issues).
+- Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
+- For security issues, follow [SECURITY.md](SECURITY.md).
+- See [SUPPORT.md](SUPPORT.md) for support details.
 
 ## License
 
-This project is licensed under the MIT License. See LICENSE.
+Agent Switchboard is available under the [MIT License](LICENSE).

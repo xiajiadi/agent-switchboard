@@ -1,7 +1,7 @@
 {
   "name": "agent-switchboard",
   "version": "0.1.0",
-  "description": "通过可视面板和对话工具管理 Codex Agent 的模型、推理、速度、上下文与自动压缩配置。",
+  "description": "Configure Codex agent settings through a visual panel or natural-language requests.",
   "author": {
     "name": "xiajiadi",
     "url": "https://github.com/xiajiadi"
@@ -9,16 +9,16 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Agent Switchboard",
-    "shortDescription": "用一个面板配置 Codex Agent。",
-    "longDescription": "选择作用域，设置模型、推理强度、速度、上下文和自动压缩。",
+    "shortDescription": "Configure Codex agents visually.",
+    "longDescription": "Manage models, reasoning, speed, context, compaction, and agent roles across global and project scopes. Preview and validate changes before writing to Codex TOML.",
     "developerName": "Agent Switchboard",
-    "category": "Productivity",
+    "category": "Developer Tools",
     "capabilities": [
       "Interactive",
       "Write"
     ],
     "defaultPrompt": [
-      "打开 Agent Switchboard，配置当前项目的默认子 Agent。"
+      "Open Agent Switchboard to configure the default subagent for this project."
     ],
     "brandColor": "#3478F6",
     "composerIcon": "./assets/icon.svg",
@@ -32,9 +32,12 @@
   "license": "MIT",
   "keywords": [
     "codex",
-    "agents",
-    "mcp",
+    "ai-agents",
+    "developer-tools",
     "configuration",
-    "model-selection"
+    "model-selection",
+    "mcp",
+    "local-first",
+    "agent-roles"
   ]
 }
