@@ -1,0 +1,15 @@
+{
+  "name": "agent-switchboard-ui",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "build:ui": "esbuild ui/src/app.js --bundle --minify --format=esm --outfile=agent_switchboard/ui_bundle.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/ext-apps": "^1.0.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0"
+  }
+}

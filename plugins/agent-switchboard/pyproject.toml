@@ -1,0 +1,28 @@
+[project]
+name = "agent-switchboard"
+version = "0.1.0"
+description = "A local MCP plugin for managing official Codex model and agent configuration."
+requires-python = ">=3.11"
+dependencies = [
+  "mcp>=2.0,<3",
+  "tomlkit>=0.13.3,<1",
+]
+
+[project.scripts]
+agent-switchboard-server = "agent_switchboard.server:main"
+
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["agent_switchboard*"]
+
+[tool.setuptools.package-data]
+agent_switchboard = ["*.html", "*.js"]
+
+[tool.uv]
+package = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

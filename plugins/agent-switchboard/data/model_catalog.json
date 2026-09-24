@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "source": "Conservative fallback for models marked visible in the Codex model picker.",
+  "asOf": "2026-09-24",
+  "models": [
+    {
+      "id": "gpt-6-astra",
+      "label": "GPT-6 Astra",
+      "defaultReasoningEffort": "low",
+      "reasoningEfforts": ["low", "medium", "high", "xhigh", "max", "ultra"],
+      "contextWindow": 272000,
+      "maxContextWindow": 872000,
+      "autoCompactPercent": 90,
+      "speedTiers": ["fast"]
+    },
+    {
+      "id": "gpt-6-sol",
+      "label": "GPT-6 Sol",
+      "defaultReasoningEffort": "medium",
+      "reasoningEfforts": ["low", "medium", "high", "xhigh", "max", "ultra"],
+      "contextWindow": 272000,
+      "maxContextWindow": 872000,
+      "autoCompactPercent": 90,
+      "speedTiers": ["fast"]
+    },
+    {
+      "id": "gpt-6-luna",
+      "label": "GPT-6 Luna",
+      "defaultReasoningEffort": "medium",
+      "reasoningEfforts": ["low", "medium", "high", "xhigh", "max"],
+      "contextWindow": 272000,
+      "maxContextWindow": 872000,
+      "autoCompactPercent": 90,
+      "speedTiers": ["fast"]
+    },
+    {
+      "id": "gpt-5.6-sol",
+      "label": "GPT-5.6 Sol",
+      "defaultReasoningEffort": "low",
+      "reasoningEfforts": ["low", "medium", "high", "xhigh", "max", "ultra"],
+      "contextWindow": 272000,
+      "maxContextWindow": 872000,
+      "autoCompactPercent": 90,
+      "speedTiers": ["fast"]
+    },
+    {
+      "id": "gpt-5.6-terra",
+      "label": "GPT-5.6 Terra",
+      "defaultReasoningEffort": "medium",
+      "reasoningEfforts": ["low", "medium", "high", "xhigh", "max", "ultra"],
+      "contextWindow": 272000,
+      "maxContextWindow": 872000,
+      "autoCompactPercent": 90,
+      "speedTiers": ["fast"]
+    },
+    {
+      "id": "gpt-5.6-luna",
+      "label": "GPT-5.6 Luna",
+      "defaultReasoningEffort": "medium",
+      "reasoningEfforts": ["low", "medium", "high", "xhigh", "max"],
+      "contextWindow": 272000,
+      "maxContextWindow": 872000,
+      "autoCompactPercent": 90,
+      "speedTiers": ["fast"]
+    },
+    {
+      "id": "gpt-5.5",
+      "label": "GPT-5.5",
+      "defaultReasoningEffort": "medium",
+      "reasoningEfforts": ["low", "medium", "high", "xhigh"],
+      "contextWindow": 272000,
+      "maxContextWindow": 272000,
+      "autoCompactPercent": 90,
+      "speedTiers": ["fast"]
+    }
+  ]
+}

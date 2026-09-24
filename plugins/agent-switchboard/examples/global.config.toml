@@ -1,0 +1,14 @@
+# Copy selected settings into ~/.codex/config.toml, or use the plugin UI.
+model = "gpt-6-sol"
+model_reasoning_effort = "high"
+service_tier = "fast"
+model_context_window = 500000
+model_auto_compact_token_limit = 440000
+
+[agents]
+default_subagent_model = "gpt-6-luna"
+default_subagent_reasoning_effort = "medium"
+
+[agents.reviewer]
+description = "Reviews implementation changes and evidence."
+config_file = "agents/roles/reviewer.toml"

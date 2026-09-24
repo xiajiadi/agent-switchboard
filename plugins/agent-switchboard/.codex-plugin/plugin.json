@@ -1,0 +1,40 @@
+{
+  "name": "agent-switchboard",
+  "version": "0.1.0",
+  "description": "通过可视面板和对话工具管理 Codex Agent 的模型、推理、速度、上下文与自动压缩配置。",
+  "author": {
+    "name": "xiajiadi",
+    "url": "https://github.com/xiajiadi"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Agent Switchboard",
+    "shortDescription": "用一个面板配置 Codex Agent。",
+    "longDescription": "选择作用域，设置模型、推理强度、速度、上下文和自动压缩。",
+    "developerName": "Agent Switchboard",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "打开 Agent Switchboard，配置当前项目的默认子 Agent。"
+    ],
+    "brandColor": "#3478F6",
+    "composerIcon": "./assets/icon.svg",
+    "logo": "./assets/icon.svg",
+    "logoDark": "./assets/icon.svg"
+  },
+  "mcpServers": "./.mcp.json",
+  "apps": "./.app.json",
+  "homepage": "https://github.com/xiajiadi/agent-switchboard#readme",
+  "repository": "https://github.com/xiajiadi/agent-switchboard",
+  "license": "MIT",
+  "keywords": [
+    "codex",
+    "agents",
+    "mcp",
+    "configuration",
+    "model-selection"
+  ]
+}

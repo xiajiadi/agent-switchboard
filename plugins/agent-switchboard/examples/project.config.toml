@@ -1,0 +1,11 @@
+# Place this file at <project>/.codex/config.toml.
+model = "gpt-6-sol"
+model_reasoning_effort = "high"
+
+[agents]
+default_subagent_model = "gpt-6-luna"
+default_subagent_reasoning_effort = "medium"
+
+[agents.worker]
+description = "Implements a bounded piece of work."
+config_file = "agents/roles/worker.toml"

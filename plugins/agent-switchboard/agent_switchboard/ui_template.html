@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agent Switchboard</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --surface: var(--color-background-primary, #ffffff);
+      --surface-soft: var(--color-background-secondary, #f5f6f8);
+      --surface-raised: var(--color-background-secondary, #ffffff);
+      --ink: var(--color-text-primary, #20232a);
+      --muted: var(--color-text-secondary, #6c7380);
+      --line: var(--color-border-primary, #e3e6eb);
+      --accent: var(--color-ring-primary, #4f46e5);
+      --accent-soft: color-mix(in srgb, var(--accent) 13%, var(--surface));
+      --good: var(--color-text-success, #19734b);
+      --bad: var(--color-text-danger, #b42318);
+      --warn: var(--color-text-warning, #875c12);
+      --shadow: 0 2px 8px rgb(0 0 0 / 12%);
+      font-family: var(--font-sans, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --surface: var(--color-background-primary, #1d1f23);
+        --surface-soft: var(--color-background-secondary, #272a30);
+        --surface-raised: var(--color-background-tertiary, #23252a);
+        --ink: var(--color-text-primary, #f3f4f6);
+        --muted: var(--color-text-secondary, #a2a8b3);
+        --line: var(--color-border-primary, #3a3d45);
+        --accent: var(--color-ring-primary, #a9a4ff);
+        --accent-soft: color-mix(in srgb, var(--accent) 20%, var(--surface));
+        --good: var(--color-text-success, #75d4a8);
+        --bad: var(--color-text-danger, #ff938a);
+        --warn: var(--color-text-warning, #e7c17a);
+        --shadow: 0 1px 2px rgb(0 0 0 / 14%);
+      }
+    }
+    :root[data-theme="light"] {
+      color-scheme: light;
+      --surface: var(--color-background-primary, #ffffff);
+      --surface-soft: var(--color-background-secondary, #f5f6f8);
+      --surface-raised: var(--color-background-secondary, #ffffff);
+      --ink: var(--color-text-primary, #20232a);
+      --muted: var(--color-text-secondary, #6c7380);
+      --line: var(--color-border-primary, #e3e6eb);
+      --accent: var(--color-ring-primary, #4f46e5);
+      --accent-soft: color-mix(in srgb, var(--accent) 13%, var(--surface));
+      --good: var(--color-text-success, #19734b);
+      --bad: var(--color-text-danger, #b42318);
+      --warn: var(--color-text-warning, #875c12);
+    }
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --surface: var(--color-background-primary, #1d1f23);
+      --surface-soft: var(--color-background-secondary, #272a30);
+      --surface-raised: var(--color-background-tertiary, #23252a);
+      --ink: var(--color-text-primary, #f3f4f6);
+      --muted: var(--color-text-secondary, #a2a8b3);
+      --line: var(--color-border-primary, #3a3d45);
+      --accent: var(--color-ring-primary, #a9a4ff);
+      --accent-soft: color-mix(in srgb, var(--accent) 20%, var(--surface));
+      --good: var(--color-text-success, #75d4a8);
+      --bad: var(--color-text-danger, #ff938a);
+      --warn: var(--color-text-warning, #e7c17a);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--ink); background: var(--surface); }
+    button, input, select { font: inherit; }
+    button { color: inherit; }
+    .shell { width: min(100%, 820px); margin: 0 auto; padding: 22px 24px 20px; }
+    .topline { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; }
+    .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .mark { display: grid; width: 38px; height: 38px; flex: 0 0 auto; place-items: center; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-soft); color: var(--accent); }
+    .mark svg { width: 21px; height: 21px; }
+    h1 { margin: 0; font-size: 19px; line-height: 1.25; font-weight: 650; letter-spacing: -.025em; }
+    .subtitle { margin: 4px 0 0; color: var(--muted); font-size: 12px; line-height: 1.4; }
+    .status { min-height: 24px; max-width: 48%; color: var(--muted); text-align: right; font-size: 11px; line-height: 1.45; }
+    .scope-tabs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 3px; margin: 17px 0 13px; padding: 4px; border: 1px solid var(--line); border-radius: 11px; background: var(--surface-soft); }
+    .scope-tab { min-height: 34px; padding: 7px 10px; border: 0; border-radius: 8px; background: transparent; color: var(--muted); cursor: pointer; font-size: 12px; font-weight: 560; transition: background .15s ease, color .15s ease; }
+    .scope-tab[aria-selected="true"] { background: var(--surface-raised); color: var(--ink); box-shadow: var(--shadow); }
+    .section { margin-top: 12px; padding: 13px; border: 1px solid var(--line); border-radius: 13px; background: var(--surface-raised); box-shadow: var(--shadow); }
+    .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+    .section-title { margin: 0; font-size: 13px; font-weight: 650; }
+    .section-note { margin: 0; color: var(--muted); font-size: 11px; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    #model-section .grid { row-gap: 8px; }
+    #model-section .field { gap: 4px; }
+    .field { display: flex; flex-direction: column; min-width: 0; gap: 6px; }
+    .field.full { grid-column: 1 / -1; }
+    .label-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    #scope-section .grid > .field .label-row { min-height: 27px; }
+    label, .label { color: var(--ink); font-size: 11px; font-weight: 610; }
+    .control { width: 100%; min-height: 38px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 9px; outline: none; background: var(--surface); color: var(--ink); font-size: 12px; }
+    .number-control { position: relative; width: 100%; }
+    .number-control > .control { padding-right: 34px; appearance: textfield; }
+    .number-control > .control[aria-invalid="true"] { border-color: var(--bad); box-shadow: 0 0 0 1px color-mix(in srgb, var(--bad) 28%, transparent); }
+    .number-control > .control::-webkit-inner-spin-button, .number-control > .control::-webkit-outer-spin-button { margin: 0; appearance: none; }
+    .number-steppers { position: absolute; top: 50%; right: 5px; display: grid; width: 18px; height: 27px; gap: 1px; transform: translateY(-50%); }
+    .number-steppers button { display: grid; min-width: 18px; min-height: 13px; padding: 0; place-items: center; border: 0; border-radius: 3px; background: transparent; color: var(--muted); cursor: pointer; }
+    .number-steppers button:hover { background: var(--surface-soft); color: var(--ink); }
+    .number-steppers svg { display: block; width: 10px; height: 7px; pointer-events: none; }
+    .native-select { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); clip-path: inset(50%); white-space: nowrap; border: 0; }
+    .select-shell { position: relative; width: 100%; }
+    .select-trigger { display: flex; align-items: center; justify-content: space-between; gap: 12px; text-align: left; cursor: pointer; background: var(--surface-soft); }
+    .select-trigger:hover:not(:disabled) { border-color: var(--color-border-secondary, var(--accent)); }
+    .select-trigger:disabled { cursor: not-allowed; opacity: .58; }
+    .select-value { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .select-chevron { width: 8px; height: 8px; flex: 0 0 auto; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: translateY(-2px) rotate(45deg); opacity: .72; }
+    .select-popover { position: fixed; z-index: 2147483000; padding: 4px; overflow: auto; overscroll-behavior: contain; border: 1px solid var(--line); border-radius: 11px; background: var(--surface-raised); color: var(--ink); box-shadow: 0 12px 34px rgb(0 0 0 / 22%); }
+    .select-option { display: flex; align-items: center; min-height: 36px; padding: 8px 10px; border-radius: 7px; color: var(--ink); font-size: 12px; line-height: 1.4; cursor: pointer; overflow-wrap: anywhere; }
+    .select-option[data-active="true"] { background: var(--surface-soft); }
+    .select-option[aria-selected="true"] { color: var(--ink); background: var(--accent-soft); }
+    .select-option[aria-disabled="true"] { cursor: not-allowed; opacity: .48; }
+    .select-option[aria-disabled="true"][data-active="true"] { background: transparent; }
+    .control:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .control::placeholder { color: var(--muted); opacity: .8; }
+    .control.has-effective-placeholder::placeholder { color: var(--ink); opacity: .78; }
+    .help { margin: 0; color: var(--muted); font-size: 10.5px; line-height: 1.45; }
+    .scope-help { margin-top: 8px; }
+    .scope-error { color: var(--bad); }
+    .notice { margin-top: 10px; padding: 9px 10px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface-soft); color: var(--muted); font-size: 11px; line-height: 1.5; }
+    .notice strong { color: var(--ink); font-weight: 620; }
+    .notice.warn { border-color: color-mix(in srgb, var(--warn) 28%, var(--line)); color: var(--warn); }
+    .notice.error { border-color: color-mix(in srgb, var(--bad) 32%, var(--line)); color: var(--bad); }
+    .notice.good { border-color: color-mix(in srgb, var(--good) 32%, var(--line)); color: var(--good); }
+    .inherited { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.35; }
+    #reasoning-help { font-size: 10px; line-height: 1.3; }
+    .inherited:empty, .help:empty { display: none; }
+    .actions { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 15px; }
+    .action-group { display: flex; gap: 8px; }
+    .btn { min-height: 35px; padding: 7px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); cursor: pointer; font-size: 11px; font-weight: 590; transition: transform .12s ease, border-color .12s ease, background .12s ease; }
+    .btn:hover { border-color: var(--accent); }
+    .btn:active { transform: translateY(1px); }
+    .btn.primary { border-color: var(--accent); background: var(--accent); color: var(--color-text-inverse, #fff); }
+    .btn.primary:hover { filter: brightness(1.05); }
+    .btn.quiet { border-color: var(--line); background: var(--surface-soft); color: var(--ink); }
+    .footer-actions { margin-top: 13px; }
+    .footer-start, .footer-end { display: flex; align-items: center; gap: 8px; }
+    .icon-btn { display: inline-grid; width: 36px; min-width: 36px; padding: 0; place-items: center; }
+    .icon-btn svg { width: 17px; height: 17px; }
+    dialog { width: min(660px, calc(100vw - 28px)); max-width: calc(100vw - 28px); max-height: min(86dvh, 760px); padding: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 16px; background: var(--surface-raised); color: var(--ink); box-shadow: 0 22px 70px rgb(0 0 0 / 30%); }
+    dialog::backdrop { background: rgb(12 14 20 / 48%); backdrop-filter: blur(2px); }
+    .dialog-layout { display: flex; max-height: min(86dvh, 760px); flex-direction: column; }
+    .dialog-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; padding: 18px 19px 12px; border-bottom: 1px solid var(--line); }
+    .dialog-head h2 { margin: 0; font-size: 16px; line-height: 1.35; font-weight: 650; }
+    .dialog-head p { margin: 4px 0 0; color: var(--muted); font-size: 11px; line-height: 1.45; }
+    .dialog-body { min-height: 0; padding: 14px 19px; overflow: auto; overscroll-behavior: contain; }
+    .dialog-close { display: grid; width: 30px; min-width: 30px; min-height: 30px; flex: 0 0 auto; padding: 0; place-items: center; line-height: 0; }
+    .dialog-close svg { display: block; width: 14px; height: 14px; }
+    .review-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+    .review-meta > div { min-width: 0; padding: 9px 10px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface-soft); }
+    .review-meta .meta-file { grid-column: 1 / -1; }
+    .review-meta span { display: block; margin-bottom: 3px; color: var(--muted); font-size: 10px; }
+    .review-meta strong { display: block; overflow-wrap: anywhere; font-size: 11px; font-weight: 590; line-height: 1.4; }
+    .review-meta strong .meta-file-line { display: block; margin-top: 2px; }
+    .review-table-wrap { max-height: 34dvh; overflow: auto; border: 1px solid var(--line); border-radius: 9px; }
+    .review-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+    .review-table th, .review-table td { padding: 9px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+    .review-table th { position: sticky; top: 0; background: var(--surface-soft); color: var(--muted); font-size: 10px; font-weight: 600; }
+    .review-table tr:last-child td { border-bottom: 0; }
+    .review-table td:first-child { width: 33%; color: var(--muted); }
+    .review-arrow { color: var(--muted); padding-inline: 4px; }
+    .review-warnings { display: grid; gap: 7px; margin-top: 10px; }
+    .review-warnings:empty { display: none; }
+    .review-warnings .notice { margin: 0; }
+    .dialog-foot { display: flex; align-items: center; justify-content: flex-end; gap: 8px; padding: 12px 19px 16px; border-top: 1px solid var(--line); }
+    .btn.danger { border-color: color-mix(in srgb, var(--bad) 40%, var(--line)); color: var(--bad); }
+    .btn.danger:hover { background: color-mix(in srgb, var(--bad) 10%, var(--surface)); }
+    .role-manage-btn { min-height: 27px; padding: 4px 8px; font-size: 10px; }
+    .role-group + .role-group { margin-top: 16px; }
+    .role-group h3 { margin: 0 0 8px; font-size: 12px; font-weight: 620; }
+    .role-list { display: grid; gap: 7px; }
+    .role-item { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 9px 10px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface-soft); }
+    .role-main { min-width: 0; }
+    .role-main strong { display: block; overflow-wrap: anywhere; font-size: 11px; font-weight: 620; }
+    .role-summary { margin-top: 3px; color: var(--muted); font-size: 10px; line-height: 1.4; overflow-wrap: anywhere; }
+    .role-actions { display: flex; flex: 0 0 auto; gap: 6px; }
+    .role-actions .btn { min-height: 29px; padding: 5px 8px; }
+    .role-empty { margin: 0; color: var(--muted); font-size: 11px; }
+    .role-status { margin: 0 0 11px; }
+    .role-file-list { margin: 10px 0 0; color: var(--muted); font-size: 10px; line-height: 1.45; overflow-wrap: anywhere; }
+    .role-file-list span { display: block; }
+    .role-file-list .file-label { margin-bottom: 3px; color: var(--ink); font-weight: 610; }
+    .log-list { display: grid; gap: 7px; }
+    .log-item { overflow: hidden; padding: 0; border: 1px solid var(--line); border-radius: 9px; background: var(--surface-soft); transition: border-color .18s ease, background-color .18s ease; }
+    .log-item[data-result="success"] { border-inline-start: 3px solid var(--good); }
+    .log-item[data-result="error"] { border-inline-start: 3px solid var(--bad); }
+    .log-item-toggle, .log-item-summary { display: block; width: 100%; padding: 9px 10px; border: 0; color: inherit; background: transparent; font: inherit; text-align: left; }
+    .log-item-toggle { cursor: pointer; transition: background-color .16s ease; }
+    .log-item-toggle:hover { background: color-mix(in srgb, var(--accent) 6%, transparent); }
+    .log-item-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: -3px; }
+    .log-item[data-expanded="true"] { background: color-mix(in srgb, var(--surface-soft) 92%, var(--accent) 8%); }
+    .log-item-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+    .log-event { font-size: 11px; font-weight: 620; }
+    .log-event.success, .log-result.success { color: var(--good); }
+    .log-event.error, .log-result.error { color: var(--bad); }
+    .log-time { color: var(--muted); font-size: 10px; text-align: right; }
+    .log-meta { display: flex; flex-wrap: wrap; gap: 3px 8px; margin-top: 3px; color: var(--muted); font-size: 10px; }
+    .log-detail-panel { display: grid; grid-template-rows: 0fr; border-top: 0 solid transparent; opacity: 0; transition: grid-template-rows .2s cubic-bezier(.2,.75,.25,1), opacity .16s ease, border-color .18s ease, border-width .18s ease; }
+    .log-item[data-expanded="true"] .log-detail-panel { grid-template-rows: 1fr; border-top-width: 1px; border-top-color: var(--line); opacity: 1; }
+    .log-detail-inner { min-height: 0; overflow: hidden; }
+    .log-details-body { display: grid; gap: 5px; margin: 0; padding: 0 10px; transition: padding .2s ease; }
+    .log-item[data-expanded="true"] .log-details-body { padding-block: 8px 10px; }
+    .log-detail-row { display: grid; grid-template-columns: minmax(90px, auto) 1fr; gap: 8px; font-size: 10px; line-height: 1.45; }
+    .log-detail-label { color: var(--muted); }
+    .log-detail-value { min-width: 0; overflow-wrap: anywhere; white-space: pre-wrap; }
+    .help-list { margin: 0; padding-left: 20px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+    .help-list li + li { margin-top: 9px; }
+    [hidden] { display: none !important; }
+    @media (max-width: 560px) {
+      .shell { padding: 17px 14px 16px; }
+      .grid { grid-template-columns: 1fr; }
+      .field.full { grid-column: auto; }
+      .section { padding: 12px; }
+      .topline { flex-direction: column; align-items: flex-start; gap: 8px; }
+      .status { max-width: none; min-height: 0; text-align: left; }
+      .review-meta { grid-template-columns: 1fr; }
+      .review-meta .meta-file { grid-column: auto; }
+      .dialog-head, .dialog-body, .dialog-foot { padding-inline: 14px; }
+      .review-table th, .review-table td { padding: 8px 7px; }
+      .footer-actions { align-items: flex-end; }
+      .footer-start, .footer-end { gap: 5px; }
+      .role-item { align-items: flex-start; flex-direction: column; }
+      .role-actions { align-self: flex-end; }
+      .log-item-head { align-items: flex-start; flex-direction: column; gap: 3px; }
+      .log-time { text-align: left; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topline">
+      <div class="brand">
+        <div class="mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M5 7.25h5.2M13.8 7.25H19M8.2 7.25a1.6 1.6 0 1 1 3.2 0 1.6 1.6 0 0 1-3.2 0ZM5 16.75h1.2M9.8 16.75H19M6.2 16.75a1.6 1.6 0 1 1 3.2 0 1.6 1.6 0 0 1-3.2 0Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <h1>Agent Switchboard</h1>
+          <p class="subtitle" data-i18n="subtitle">管理 Codex 模型与 Agent 配置</p>
+        </div>
+      </div>
+      <div id="status" class="status" role="status" aria-live="polite">正在读取 Codex 配置…</div>
+    </header>
+
+    <nav class="scope-tabs" role="tablist" aria-label="配置作用域" data-i18n-aria-label="scopeTabs">
+      <button class="scope-tab" type="button" data-scope="project" role="tab" aria-selected="true" data-i18n="project">当前项目</button>
+      <button class="scope-tab" type="button" data-scope="global" role="tab" aria-selected="false" data-i18n="global">全局</button>
+    </nav>
+
+    <section class="section" id="scope-section">
+      <div class="section-head">
+        <h2 class="section-title" data-i18n="scopeTitle">作用范围</h2>
+        <p class="section-note" id="scope-description">保存到用户级 config.toml</p>
+      </div>
+      <div class="grid">
+        <div class="field">
+          <div class="label-row"><label for="target" data-i18n="agentType">Agent 类型</label></div>
+          <select class="native-select custom-select-source" id="target" tabindex="-1" aria-hidden="true">
+            <option value="main" data-i18n="mainAgent">主 Agent</option>
+            <option value="subagents" data-i18n="defaultSubagents">默认子 Agent</option>
+            <option value="role" data-i18n="namedRole">命名角色</option>
+          </select>
+        </div>
+        <div class="field" id="role-field" hidden>
+          <div class="label-row">
+            <label for="role-name" data-i18n="roleName">角色名称</label>
+            <button class="btn role-manage-btn" id="roles-open" type="button" data-i18n="manageRoles">查看已有角色</button>
+          </div>
+          <input class="control" id="role-name" type="text" maxlength="48" placeholder="例如 reviewer" data-i18n-placeholder="rolePlaceholder">
+          <p class="help" data-i18n="roleHelp">使用小写字母开头，可包含数字、连字符和下划线</p>
+        </div>
+        <div class="field full" id="project-field" hidden>
+          <div class="label-row"><label for="project-root" data-i18n="projectFolder">项目文件夹</label></div>
+          <input class="control" id="project-root" type="text" autocomplete="off" placeholder="输入项目的绝对路径" data-i18n-placeholder="projectPlaceholder">
+        </div>
+      </div>
+      <p class="help scope-help" id="scope-notice" hidden></p>
+    </section>
+
+    <section class="section" id="model-section">
+      <div class="section-head">
+        <h2 class="section-title" data-i18n="modelSection">模型与推理</h2>
+        <p class="section-note" data-i18n="catalogNote">来自本机 Codex 模型目录</p>
+      </div>
+      <div class="grid">
+        <div class="field">
+          <div class="label-row"><label for="model" data-i18n="model">模型</label></div>
+          <select class="native-select custom-select-source" id="model" tabindex="-1" aria-hidden="true"></select>
+          <p class="inherited" id="model-inherited"></p>
+        </div>
+        <div class="field">
+          <div class="label-row"><label for="reasoning" data-i18n="reasoning">推理强度</label></div>
+          <select class="native-select custom-select-source" id="reasoning" tabindex="-1" aria-hidden="true"></select>
+          <p class="inherited" id="reasoning-inherited"></p>
+          <p class="help" id="reasoning-help"></p>
+        </div>
+        <div class="field full">
+          <div class="label-row"><label for="speed" data-i18n="speed">速度</label></div>
+          <select class="native-select custom-select-source" id="speed" tabindex="-1" aria-hidden="true">
+            <option value="" data-i18n="speedNoChange">不修改此层</option>
+            <option value="standard" data-i18n="speedStandard">标准</option>
+            <option value="fast" data-i18n="speedFast">快速（Fast）</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <p class="help scope-help main-agent-note" id="main-agent-note" hidden data-i18n="mainAgentPickerNote">主 Agent 的模型、推理强度和速度请在聊天框右下角的模型选择器中调整</p>
+
+    <section class="section">
+      <div class="section-head">
+        <h2 class="section-title" data-i18n="contextSection">上下文与自动压缩</h2>
+      </div>
+      <div class="grid">
+        <div class="field">
+          <div class="label-row"><label for="context-window" data-i18n="contextWindow">上下文窗口</label></div>
+          <div class="number-control">
+            <input class="control" id="context-window" type="number" min="256000" step="1" data-token-step="10000" inputmode="numeric" placeholder="继承 Codex 默认值" data-i18n-placeholder="inheritDefault">
+            <div class="number-steppers">
+              <button type="button" data-step-target="context-window" data-step-direction="1" aria-label="增加上下文窗口" data-i18n-aria-label="stepUpContext"><svg viewBox="0 0 12 8" fill="none"><path d="m2 6 4-4 4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+              <button type="button" data-step-target="context-window" data-step-direction="-1" aria-label="减少上下文窗口" data-i18n-aria-label="stepDownContext"><svg viewBox="0 0 12 8" fill="none"><path d="m2 2 4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <div class="label-row"><label for="compact-limit" data-i18n="compactLimit">自动压缩阈值</label></div>
+          <div class="number-control">
+            <input class="control" id="compact-limit" type="number" min="10000" step="1" data-token-step="10000" inputmode="numeric" placeholder="继承 Codex 默认值" data-i18n-placeholder="inheritDefault">
+            <div class="number-steppers">
+              <button type="button" data-step-target="compact-limit" data-step-direction="1" aria-label="增加自动压缩阈值" data-i18n-aria-label="stepUpCompact"><svg viewBox="0 0 12 8" fill="none"><path d="m2 6 4-4 4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+              <button type="button" data-step-target="compact-limit" data-step-direction="-1" aria-label="减少自动压缩阈值" data-i18n-aria-label="stepDownCompact"><svg viewBox="0 0 12 8" fill="none"><path d="m2 2 4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="actions footer-actions">
+      <div class="footer-start">
+        <button class="btn icon-btn" id="help-open" type="button" aria-label="使用说明" data-i18n-aria-label="helpTitle">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6.5 4.5h8l3 3v12h-11a2 2 0 0 1-2-2v-11a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M14.5 4.8v3.4h3.2M8 12h8M8 15h8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </button>
+        <button class="btn quiet" id="reset" type="button" data-i18n="reset">清除此层覆盖</button>
+      </div>
+      <div class="footer-end">
+        <button class="btn" id="refresh" type="button" data-i18n="refresh">刷新模型目录</button>
+        <button class="btn primary" id="preview" type="button" data-i18n="reviewApply">预览并应用</button>
+      </div>
+    </div>
+  </main>
+  <dialog id="review-dialog" aria-labelledby="review-title">
+    <div class="dialog-layout">
+      <header class="dialog-head">
+        <div><h2 id="review-title" data-i18n="reviewTitle">确认配置更改</h2><p id="review-subtitle"></p></div>
+        <button class="btn dialog-close" id="review-close" type="button" aria-label="关闭" data-i18n-aria-label="close"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m4 4 8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+      </header>
+      <div class="dialog-body">
+        <div class="review-meta" id="review-meta"></div>
+        <div class="review-table-wrap" id="review-table-wrap">
+          <table class="review-table">
+            <thead><tr><th data-i18n="setting">设置项</th><th data-i18n="before">更改前</th><th data-i18n="after">更改后</th></tr></thead>
+            <tbody id="review-rows"></tbody>
+          </table>
+        </div>
+        <p class="notice" id="review-empty" role="status" hidden></p>
+        <div class="review-warnings" id="review-warnings"></div>
+      </div>
+      <footer class="dialog-foot">
+        <button class="btn" id="review-cancel" type="button" data-i18n="backToEdit">返回修改</button>
+        <button class="btn primary" id="review-confirm" type="button" data-i18n="confirmApply">确认并应用</button>
+      </footer>
+    </div>
+  </dialog>
+  <dialog id="help-dialog" aria-labelledby="help-heading">
+    <div class="dialog-layout">
+      <header class="dialog-head">
+        <div><h2 id="help-heading" data-i18n="helpTitle">Agent Switchboard 使用说明</h2></div>
+        <button class="btn dialog-close" id="help-close" type="button" aria-label="关闭" data-i18n-aria-label="close"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m4 4 8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+      </header>
+      <div class="dialog-body"><ol class="help-list">
+        <li data-i18n="helpProject">当前项目会把设置写入项目目录下的 .codex/config.toml；Codex 只加载受信任项目的设置。</li>
+        <li data-i18n="helpGlobal">全局设置写入用户目录的 config.toml。项目级设置会覆盖同一字段的全局值；清除此层覆盖后会重新继承。</li>
+        <li data-i18n="helpAgents">默认子 Agent 使用此处选择的模型和推理强度；命名角色可单独设置。主 Agent 的模型、推理强度和速度在聊天框右下角调整。</li>
+        <li data-i18n="helpModel">模型列表来自本机 Codex 模型目录，推理档位随所选模型变化。标准会清除此配置层的快速模式；其他配置层仍可能启用快速模式。</li>
+        <li data-i18n="helpContext">空白表示继承，框内数字为当前值。上下文范围为 256,000 至所选模型上限；两项每次调整 10,000。修改上下文会按 Codex 建议更新压缩阈值，也可手动调整。</li>
+        <li data-i18n="helpTiming">模型、推理强度和速度供后续请求读取；上下文和压缩阈值在新 Agent 启动时读取。上下文、压缩阈值和速度属于配置层共享设置，可能影响继承该层的其他 Agent。</li>
+        <li data-i18n="helpReview">预览窗口会列出写入位置、Agent 类型、修改前后值和注意事项；确认后才会写入配置。</li>
+      </ol></div>
+      <footer class="dialog-foot">
+        <button class="btn" id="logs-open" type="button" data-i18n="openLogs">操作日志</button>
+        <button class="btn primary" id="help-done" type="button" data-i18n="gotIt">知道了</button>
+      </footer>
+    </div>
+  </dialog>
+  <dialog id="roles-dialog" aria-labelledby="roles-heading">
+    <div class="dialog-layout">
+      <header class="dialog-head">
+        <div><h2 id="roles-heading" data-i18n="rolesTitle">已有角色</h2></div>
+        <button class="btn dialog-close" id="roles-close" type="button" aria-label="关闭" data-i18n-aria-label="close"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m4 4 8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+      </header>
+      <div class="dialog-body">
+        <p class="notice role-status" id="roles-status" role="status" hidden></p>
+        <section class="role-group" aria-labelledby="project-roles-heading">
+          <h3 id="project-roles-heading" data-i18n="projectRoles">项目角色</h3>
+          <div class="role-list" id="project-role-list"></div>
+        </section>
+        <section class="role-group" aria-labelledby="global-roles-heading">
+          <h3 id="global-roles-heading" data-i18n="globalRoles">全局角色</h3>
+          <div class="role-list" id="global-role-list"></div>
+        </section>
+      </div>
+      <footer class="dialog-foot"><button class="btn primary" id="roles-done" type="button" data-i18n="close">关闭</button></footer>
+    </div>
+  </dialog>
+  <dialog id="role-delete-dialog" aria-labelledby="role-delete-heading">
+    <div class="dialog-layout">
+      <header class="dialog-head">
+        <div><h2 id="role-delete-heading" data-i18n="deleteRoleTitle">删除命名角色</h2></div>
+        <button class="btn dialog-close" id="role-delete-close" type="button" aria-label="关闭" data-i18n-aria-label="close"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m4 4 8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+      </header>
+      <div class="dialog-body">
+        <p id="role-delete-copy" class="help"></p>
+        <p id="role-delete-files" class="role-file-list"></p>
+        <p id="role-delete-warning" class="notice warn"></p>
+      </div>
+      <footer class="dialog-foot">
+        <button class="btn" id="role-delete-cancel" type="button" data-i18n="cancel">取消</button>
+        <button class="btn danger" id="role-delete-confirm" type="button" data-i18n="deleteRole">删除角色</button>
+      </footer>
+    </div>
+  </dialog>
+  <dialog id="logs-dialog" aria-labelledby="logs-heading">
+    <div class="dialog-layout">
+      <header class="dialog-head">
+        <div>
+          <h2 id="logs-heading" data-i18n="logsTitle">操作日志</h2>
+        </div>
+        <button class="btn dialog-close" id="logs-close-icon" type="button" aria-label="关闭" data-i18n-aria-label="close"><svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m4 4 8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+      </header>
+      <div class="dialog-body">
+        <div class="log-list" id="logs-list" role="log" aria-live="polite"></div>
+        <p class="notice error" id="logs-error" role="alert" hidden></p>
+      </div>
+      <footer class="dialog-foot">
+        <button class="btn" id="logs-refresh" type="button" data-i18n="refreshLogs">刷新日志</button>
+        <button class="btn primary" id="logs-done" type="button" data-i18n="close">关闭</button>
+      </footer>
+    </div>
+  </dialog>
+  <script type="module">
+    /* AGENT_SWITCHBOARD_BUNDLE */
+  </script>
+</body>
+</html>

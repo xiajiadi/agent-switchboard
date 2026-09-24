@@ -1,0 +1,4 @@
+model = "gpt-6-luna"
+model_reasoning_effort = "medium"
+model_context_window = 256000
+model_auto_compact_token_limit = 220000

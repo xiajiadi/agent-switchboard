@@ -1,0 +1,5 @@
+model = "gpt-6-sol"
+model_reasoning_effort = "high"
+service_tier = "fast"
+model_context_window = 500000
+model_auto_compact_token_limit = 440000

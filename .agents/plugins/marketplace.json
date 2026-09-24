@@ -1,0 +1,10 @@
+{
+  "name": "agent-switchboard-community",
+  "interface": { "displayName": "Agent Switchboard" },
+  "plugins": [{
+    "name": "agent-switchboard",
+    "source": { "source": "local", "path": "./plugins/agent-switchboard" },
+    "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
+    "category": "Productivity"
+  }]
+}
