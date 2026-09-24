@@ -1,104 +1,111 @@
-# Agent Switchboard
+<h1 align="center">Agent Switchboard</h1>
 
-[English](README.md) · [简体中文](README.zh-CN.md)
+<p align="center">
+  <a href="README.md">简体中文</a> · <a href="README.en.md">English</a>
+</p>
 
-[![Quality checks](https://github.com/xiajiadi/agent-switchboard/actions/workflows/ci.yml/badge.svg)](https://github.com/xiajiadi/agent-switchboard/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+<p align="center">
+  <a href="https://github.com/xiajiadi/agent-switchboard/releases/latest"><img src="https://img.shields.io/github/v/release/xiajiadi/agent-switchboard" alt="Release"></a>
+  <a href="https://github.com/xiajiadi/agent-switchboard/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/xiajiadi/agent-switchboard/ci.yml?label=CI" alt="CI"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="许可证：MIT"></a>
+</p>
 
-## Visual control for Codex agents
+## 用可视面板配置 Codex Agent
 
-Configure models, reasoning, speed, context, compaction, and agent roles without hand-editing TOML. Use the panel or ask Codex in natural language, then review changes before they reach Codex’s own configuration files.
+不用手改 TOML，即可管理模型、推理强度、速度、上下文、自动压缩和 Agent 角色。你可以操作面板，也可以直接用自然语言告诉 Codex 要改什么；写入前都能查看变更。
 
-[Install](#install) · [Full demo video](https://github.com/xiajiadi/agent-switchboard/releases/download/v0.1.0/agent-switchboard-demo.mp4) · [Technical guide](plugins/agent-switchboard/README.md) · [简体中文](README.zh-CN.md)
+[安装](#安装) · [观看完整版演示](https://github.com/xiajiadi/agent-switchboard/releases/download/v0.1.0/agent-switchboard-demo.mp4) · [技术说明](plugins/agent-switchboard/README.md) · [English](README.en.md)
 
-[v0.1.0 release](https://github.com/xiajiadi/agent-switchboard/releases/tag/v0.1.0)
+[v0.1.0 发布页](https://github.com/xiajiadi/agent-switchboard/releases/tag/v0.1.0)
 
-[![Agent Switchboard interface](assets/agent-switchboard-hero-en.png)](https://github.com/xiajiadi/agent-switchboard/releases/download/v0.1.0/agent-switchboard-demo.mp4)
+[![Agent Switchboard 操作界面](assets/agent-switchboard-hero.png)](https://github.com/xiajiadi/agent-switchboard/releases/download/v0.1.0/agent-switchboard-demo.mp4)
 
-[![Watch the Agent Switchboard demo](assets/agent-switchboard-demo.gif)](https://github.com/xiajiadi/agent-switchboard/releases/download/v0.1.0/agent-switchboard-demo.mp4)
+[![观看 Agent Switchboard 演示](assets/agent-switchboard-demo.gif)](https://github.com/xiajiadi/agent-switchboard/releases/download/v0.1.0/agent-switchboard-demo.mp4)
 
-*Click the GIF to open the full video demo.*
+*点击 GIF 可打开完整版视频演示。*
 
-Local-first · Official Codex TOML · Preview before write
+本地运行 · 使用 Codex 官方 TOML · 写入前预览
 
-## Install
+<a id="install"></a>
 
-Add the GitHub-backed marketplace and install Agent Switchboard in Codex:
+## 安装
+
+在 Codex 中添加 GitHub 插件市场并安装 Agent Switchboard：
 
 ```bash
 codex plugin marketplace add xiajiadi/agent-switchboard
 codex plugin add agent-switchboard@agent-switchboard-community
 ```
 
-Start a new Codex task after installation, then open **Agent Switchboard**. The local MCP server requires [uv](https://docs.astral.sh/uv/) and Python 3.11 or newer. The UI bundle is included; Node.js is only needed to rebuild it.
+安装后新建一个 Codex 任务，再打开 **Agent Switchboard**。本地 MCP 服务需要安装 [uv](https://docs.astral.sh/uv/) 和 Python 3.11 或更新版本。仓库已包含构建好的界面；只有重新构建时才需要 Node.js。
 
-## Troubleshooting
+## 常见问题
 
-- **The plugin does not appear after install:** Start a new Codex task, then open Agent Switchboard.
-- **Project settings have no effect:** Confirm that the project is trusted in Codex. Codex reads project `.codex/config.toml` only for trusted projects.
-- **The plugin fails to start:** Check that Python 3.11 or newer and `uv` are installed and available on your `PATH`.
-- **The model list is outdated:** Select **Refresh model list** to reload the local Codex model catalog.
+- **安装后看不到插件：** 新建一个 Codex 任务，再打开 Agent Switchboard。
+- **项目配置没有生效：** 确认 Codex 已信任该项目。Codex 只会读取受信任项目中的 `.codex/config.toml`。
+- **插件无法启动：** 检查是否已安装 Python 3.11+ 和 `uv`，并确保两者可从命令行运行。
+- **模型列表没有更新：** 在面板中点击“刷新模型目录”，重新读取本机 Codex 模型目录。
 
-## Why Agent Switchboard?
+## 为什么用 Agent Switchboard
 
-| Editing TOML by hand | Using Agent Switchboard |
+| 手动编辑 TOML | 使用 Agent Switchboard |
 | --- | --- |
-| Find the right global or project file and its precedence | Choose a scope and agent in the panel |
-| Look up the right keys and model options | Pick from the model catalog available to your local Codex CLI |
-| Check the edit, save, and recover manually | Preview, validate, review the diff, and confirm the write |
+| 查找全局或项目文件，并确认配置优先级 | 在面板中选择作用域和 Agent 类型 |
+| 查询字段与模型选项 | 从本机 Codex CLI 提供的模型目录中选择 |
+| 手动检查、保存和恢复 | 先预览、校验和查看差异，确认后再写入 |
 
-The plugin writes to Codex’s configuration files, so the same settings remain available to Codex without a separate settings store.
+插件直接编辑 Codex 配置文件。设置仍由 Codex 读取，不需要另建一套配置存储。
 
-## Features
+## 功能
 
-- **Visual configuration:** Set the scope, agent type, model, reasoning effort, speed tier, context window, and compaction threshold where supported.
-- **Global and project scopes:** Manage user defaults or project overrides. Codex reads project configuration only for trusted projects.
-- **Default subagent and named roles:** Configure default subagent settings and keep named role definitions in their own TOML files.
-- **Natural-language workflow:** Ask Codex to inspect or update an agent. For example: “Set this project’s default subagent to GPT-6 Luna with high reasoning and Fast.”
-- **Review before writing:** Validate supported values, inspect the proposed diff, and confirm before the plugin writes.
-- **Local operation history:** Review recent operations and the settings they changed.
-- **Native configuration:** Read and write Codex’s TOML files directly. Existing comments and unrelated settings are preserved.
+- **可视化配置：** 按支持范围设置作用域、Agent 类型、模型、推理强度、速度、上下文窗口和自动压缩阈值。
+- **全局和项目作用域：** 管理用户默认值或项目覆盖。Codex 只读取受信任项目中的项目配置。
+- **默认子 Agent 和命名角色：** 配置默认子 Agent，并将命名角色保存在各自的 TOML 文件中。
+- **自然语言操作：** 直接告诉 Codex 要检查或修改什么，例如：“把当前项目的默认子 Agent 设为 GPT-6 Luna、高推理强度和 Fast。”
+- **写入前审阅：** 校验支持的值、查看拟议差异，并确认后写入。
+- **本地操作记录：** 查看最近操作及其修改的设置。
+- **使用原生配置：** 直接读写 Codex TOML，保留已有注释和无关设置。
 
 <p align="center">
-  <img src="assets/agent-switchboard-features-en.png" alt="Agent Switchboard features: visual configuration, change review, named roles, and local operation history" width="100%">
+  <img src="assets/agent-switchboard-features.png" alt="Agent Switchboard 功能：可视化配置、写入前预览、命名角色和操作记录" width="100%">
 </p>
 
-## Two ways to work
+## 两种使用方式
 
-### Use the panel
+### 使用面板
 
-Open Agent Switchboard, choose the scope and agent, adjust available settings, and select **Preview and apply**. Review the affected files and values before confirming.
+打开 Agent Switchboard，选择作用域和 Agent，调整可用设置，然后点击“预览并应用”。确认前检查受影响的文件和配置值。
 
-### Ask Codex
+### 用自然语言告诉 Codex
 
-You can describe the intended change in a prompt:
+例如：
 
 ```text
-For this project, set the default subagent to GPT-6 Sol with high reasoning.
-Show me the proposed changes before applying them.
+把当前项目的默认子 Agent 设为 GPT-6 Sol 和 high 推理强度。
+应用前先展示拟议的改动。
 ```
 
-The plugin’s tools read the current configuration, validate requested values, and show a diff before writing.
+插件会读取现有配置、校验请求的值，并在写入前显示差异。
 
-## Scopes and configuration
+## 作用域与配置
 
-| Scope | File | Use |
+| 作用域 | 文件 | 用途 |
 | --- | --- | --- |
-| Global | `$CODEX_HOME/config.toml` | User-level defaults across projects |
-| Project | `<project>/.codex/config.toml` | Overrides for one trusted project |
-| Named role | A role-specific TOML file referenced by `agents.<name>.config_file` | Settings for a named agent role |
+| 全局 | `$CODEX_HOME/config.toml` | 跨项目的用户默认值 |
+| 项目 | `<project>/.codex/config.toml` | 单个受信任项目的覆盖值 |
+| 命名角色 | 由 `agents.<name>.config_file` 指定的角色 TOML 文件 | 命名 Agent 角色的设置 |
 
-Codex controls which configuration layer takes effect. Command-line options and higher-precedence settings may override values from these files. Model, reasoning, and speed controls for the main agent remain in Codex’s model picker; the panel can manage supported context and compaction settings for the main agent.
+最终生效的配置由 Codex 的优先级规则决定。命令行参数和更高优先级的设置可能覆盖这些文件中的值。主 Agent 的模型、推理强度和速度仍在 Codex 模型选择器中调整；面板可管理主 Agent 支持的上下文和自动压缩设置。
 
-## Safe writes, local data
+## 安全写入与本地数据
 
-The plugin validates the selected changes, shows a diff, and waits for confirmation. It preserves TOML comments and unrelated fields, then writes through an atomic file replacement. Operation history is stored locally at `$CODEX_HOME/logs/agent-switchboard.jsonl`.
+插件会校验选定的修改、显示差异，并等待用户确认。它保留 TOML 注释和无关字段，再通过原子文件替换写入。操作记录保存在本机 `$CODEX_HOME/logs/agent-switchboard.jsonl`。
 
-The plugin has no built-in telemetry or hosted service. Its logs can contain local paths and values for settings managed by the plugin. Review [PRIVACY.md](PRIVACY.md) before sharing logs, and redact local details from public reports.
+插件没有内置遥测或托管服务。日志可能包含本机路径和插件管理的设置值。分享日志前请阅读 [PRIVACY.md](PRIVACY.md)，发布问题时请先脱敏本机信息。
 
-## Development
+## 开发
 
-The installable plugin lives in [`plugins/agent-switchboard`](plugins/agent-switchboard). From that directory:
+可安装插件位于 [`plugins/agent-switchboard`](plugins/agent-switchboard)。进入该目录运行：
 
 ```bash
 uv sync --locked
@@ -107,16 +114,16 @@ npm ci
 npm run build:ui
 ```
 
-The last two commands rebuild the bundled UI and require Node.js 20 or newer. See [CONTRIBUTING.md](CONTRIBUTING.md) for the development workflow and [the technical guide](plugins/agent-switchboard/README.md) for tools, configuration details, and local development installation.
+最后两条命令会重新构建打包的界面，需要 Node.js 20 或更新版本。开发流程见 [CONTRIBUTING.md](CONTRIBUTING.md)；工具、配置细节和本地开发安装方式见[技术说明](plugins/agent-switchboard/README.md)。
 
-## Contributing and support
+## 参与和支持
 
-- Report bugs or request features through [GitHub Issues](https://github.com/xiajiadi/agent-switchboard/issues).
-- Ask setup questions and share feedback in [GitHub Discussions](https://github.com/xiajiadi/agent-switchboard/discussions).
-- Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
-- For security issues, follow [SECURITY.md](SECURITY.md).
-- See [SUPPORT.md](SUPPORT.md) for support details.
+- 通过 [GitHub Issues](https://github.com/xiajiadi/agent-switchboard/issues) 报告问题或提出功能建议。
+- 安装和使用问题、功能想法也可以在 [GitHub Discussions](https://github.com/xiajiadi/agent-switchboard/discussions) 中交流。
+- 提交 pull request 前请阅读 [CONTRIBUTING.md](CONTRIBUTING.md)。
+- 安全问题请按 [SECURITY.md](SECURITY.md) 中的说明报告。
+- 支持信息见 [SUPPORT.md](SUPPORT.md)。
 
-## License
+## 许可证
 
-Agent Switchboard is available under the [MIT License](LICENSE).
+Agent Switchboard 使用 [MIT 许可证](LICENSE)。

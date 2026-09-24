@@ -1,15 +1,20 @@
-# Agent Switchboard
+<h1 align="center">Agent Switchboard</h1>
 
-[English](README.md) · [简体中文](README.zh-CN.md)
+<p align="center">
+  <a href="README.md">简体中文</a> · <a href="README.en.md">English</a>
+</p>
 
-[![质量检查](https://github.com/xiajiadi/agent-switchboard/actions/workflows/ci.yml/badge.svg)](https://github.com/xiajiadi/agent-switchboard/actions/workflows/ci.yml)
-[![许可证：MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+<p align="center">
+  <a href="https://github.com/xiajiadi/agent-switchboard/releases/latest"><img src="https://img.shields.io/github/v/release/xiajiadi/agent-switchboard" alt="Release"></a>
+  <a href="https://github.com/xiajiadi/agent-switchboard/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/xiajiadi/agent-switchboard/ci.yml?label=CI" alt="CI"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="许可证：MIT"></a>
+</p>
 
 ## 用可视面板配置 Codex Agent
 
 不用手改 TOML，即可管理模型、推理强度、速度、上下文、自动压缩和 Agent 角色。你可以操作面板，也可以直接用自然语言告诉 Codex 要改什么；写入前都能查看变更。
 
-[安装](#安装) · [观看完整版演示](https://github.com/xiajiadi/agent-switchboard/releases/download/v0.1.0/agent-switchboard-demo.mp4) · [技术说明](plugins/agent-switchboard/README.md) · [English](README.md)
+[安装](#安装) · [观看完整版演示](https://github.com/xiajiadi/agent-switchboard/releases/download/v0.1.0/agent-switchboard-demo.mp4) · [技术说明](plugins/agent-switchboard/README.md) · [English](README.en.md)
 
 [v0.1.0 发布页](https://github.com/xiajiadi/agent-switchboard/releases/tag/v0.1.0)
 
@@ -20,6 +25,8 @@
 *点击 GIF 可打开完整版视频演示。*
 
 本地运行 · 使用 Codex 官方 TOML · 写入前预览
+
+<a id="install"></a>
 
 ## 安装
 
