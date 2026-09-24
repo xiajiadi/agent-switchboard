@@ -9,13 +9,15 @@
 
 Configure models, reasoning, speed, context, compaction, and agent roles without hand-editing TOML. Use the panel or ask Codex in natural language, then review changes before they reach Codex’s own configuration files.
 
-[Install](#install) · [Watch the demo](assets/agent-switchboard-demo.mp4) · [Technical guide](plugins/agent-switchboard/README.md) · [简体中文](README.zh-CN.md)
+[Install](#install) · [Full demo video](https://github.com/xiajiadi/agent-switchboard/releases/download/v0.1.0/agent-switchboard-demo.mp4) · [Technical guide](plugins/agent-switchboard/README.md) · [简体中文](README.zh-CN.md)
 
-[v0.1.0 release notes](docs/releases/v0.1.0.md)
+[v0.1.0 release](https://github.com/xiajiadi/agent-switchboard/releases/tag/v0.1.0)
 
-[![Agent Switchboard interface](assets/agent-switchboard-hero.png)](assets/agent-switchboard-demo.mp4)
+[![Agent Switchboard interface](assets/agent-switchboard-hero-en.png)](https://github.com/xiajiadi/agent-switchboard/releases/download/v0.1.0/agent-switchboard-demo.mp4)
 
-*Click the preview to open the recorded demo.*
+[![Watch the Agent Switchboard demo](assets/agent-switchboard-demo.gif)](https://github.com/xiajiadi/agent-switchboard/releases/download/v0.1.0/agent-switchboard-demo.mp4)
+
+*Click the GIF to open the full video demo.*
 
 Local-first · Official Codex TOML · Preview before write
 
@@ -29,6 +31,13 @@ codex plugin add agent-switchboard@agent-switchboard-community
 ```
 
 Start a new Codex task after installation, then open **Agent Switchboard**. The local MCP server requires [uv](https://docs.astral.sh/uv/) and Python 3.11 or newer. The UI bundle is included; Node.js is only needed to rebuild it.
+
+## Troubleshooting
+
+- **The plugin does not appear after install:** Start a new Codex task, then open Agent Switchboard.
+- **Project settings have no effect:** Confirm that the project is trusted in Codex. Codex reads project `.codex/config.toml` only for trusted projects.
+- **The plugin fails to start:** Check that Python 3.11 or newer and `uv` are installed and available on your `PATH`.
+- **The model list is outdated:** Select **Refresh model list** to reload the local Codex model catalog.
 
 ## Why Agent Switchboard?
 
@@ -51,7 +60,7 @@ The plugin writes to Codex’s configuration files, so the same settings remain 
 - **Native configuration:** Read and write Codex’s TOML files directly. Existing comments and unrelated settings are preserved.
 
 <p align="center">
-  <img src="assets/agent-switchboard-features.png" alt="Agent Switchboard features: visual configuration, preview before write, named roles, and operation history" width="100%">
+  <img src="assets/agent-switchboard-features-en.png" alt="Agent Switchboard features: visual configuration, change review, named roles, and local operation history" width="100%">
 </p>
 
 ## Two ways to work
@@ -103,6 +112,7 @@ The last two commands rebuild the bundled UI and require Node.js 20 or newer. Se
 ## Contributing and support
 
 - Report bugs or request features through [GitHub Issues](https://github.com/xiajiadi/agent-switchboard/issues).
+- Ask setup questions and share feedback in [GitHub Discussions](https://github.com/xiajiadi/agent-switchboard/discussions).
 - Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
 - For security issues, follow [SECURITY.md](SECURITY.md).
 - See [SUPPORT.md](SUPPORT.md) for support details.

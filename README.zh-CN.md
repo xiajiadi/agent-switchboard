@@ -9,13 +9,15 @@
 
 不用手改 TOML，即可管理模型、推理强度、速度、上下文、自动压缩和 Agent 角色。你可以操作面板，也可以直接用自然语言告诉 Codex 要改什么；写入前都能查看变更。
 
-[安装](#安装) · [观看演示](assets/agent-switchboard-demo.mp4) · [技术说明](plugins/agent-switchboard/README.md) · [English](README.md)
+[安装](#安装) · [观看完整版演示](https://github.com/xiajiadi/agent-switchboard/releases/download/v0.1.0/agent-switchboard-demo.mp4) · [技术说明](plugins/agent-switchboard/README.md) · [English](README.md)
 
-[v0.1.0 发布说明](docs/releases/v0.1.0.md)
+[v0.1.0 发布页](https://github.com/xiajiadi/agent-switchboard/releases/tag/v0.1.0)
 
-[![Agent Switchboard 操作界面](assets/agent-switchboard-hero.png)](assets/agent-switchboard-demo.mp4)
+[![Agent Switchboard 操作界面](assets/agent-switchboard-hero.png)](https://github.com/xiajiadi/agent-switchboard/releases/download/v0.1.0/agent-switchboard-demo.mp4)
 
-*点击图片可打开录制演示。*
+[![观看 Agent Switchboard 演示](assets/agent-switchboard-demo.gif)](https://github.com/xiajiadi/agent-switchboard/releases/download/v0.1.0/agent-switchboard-demo.mp4)
+
+*点击 GIF 可打开完整版视频演示。*
 
 本地运行 · 使用 Codex 官方 TOML · 写入前预览
 
@@ -29,6 +31,13 @@ codex plugin add agent-switchboard@agent-switchboard-community
 ```
 
 安装后新建一个 Codex 任务，再打开 **Agent Switchboard**。本地 MCP 服务需要安装 [uv](https://docs.astral.sh/uv/) 和 Python 3.11 或更新版本。仓库已包含构建好的界面；只有重新构建时才需要 Node.js。
+
+## 常见问题
+
+- **安装后看不到插件：** 新建一个 Codex 任务，再打开 Agent Switchboard。
+- **项目配置没有生效：** 确认 Codex 已信任该项目。Codex 只会读取受信任项目中的 `.codex/config.toml`。
+- **插件无法启动：** 检查是否已安装 Python 3.11+ 和 `uv`，并确保两者可从命令行运行。
+- **模型列表没有更新：** 在面板中点击“刷新模型目录”，重新读取本机 Codex 模型目录。
 
 ## 为什么用 Agent Switchboard
 
@@ -103,6 +112,7 @@ npm run build:ui
 ## 参与和支持
 
 - 通过 [GitHub Issues](https://github.com/xiajiadi/agent-switchboard/issues) 报告问题或提出功能建议。
+- 安装和使用问题、功能想法也可以在 [GitHub Discussions](https://github.com/xiajiadi/agent-switchboard/discussions) 中交流。
 - 提交 pull request 前请阅读 [CONTRIBUTING.md](CONTRIBUTING.md)。
 - 安全问题请按 [SECURITY.md](SECURITY.md) 中的说明报告。
 - 支持信息见 [SUPPORT.md](SUPPORT.md)。
